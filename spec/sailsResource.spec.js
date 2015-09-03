@@ -68,33 +68,42 @@ describe('sailsResource >', function () {
 
 	describe('transforms >', function () {
 		it('uses a given transformRequest', function () {
-			var item = service.get({id: 1});
-			socket.flush();
-			item.$transformUpdate();
-			expect(item.data).toBeDefined();
-			expect(item.data).toEqual('transformed request');
+			service.get({id: 1}).then(function(item){
+				socket.flush();
+				item.$transformUpdate();
+				expect(item.data).toBeDefined();
+				expect(item.data).toEqual('transformed request');
+			})
 		});
 
 		it('uses a given transformResponse', function () {
-			var item = service.transformRetrieve({id: 1});
-			socket.flush();
-			expect(item.data).toBeDefined();
-			expect(item.data).toEqual('transformed response');
+			service.transformRetrieve({id: 1}).then(function(item){
+				socket.flush();
+				expect(item.data).toBeDefined();
+				expect(item.data).toEqual('transformed response');
+			})
 		});
 	});
 
 	describe('queries >', function () {
 		var items;
-		beforeEach(function () {
-			items = service.query(successHandler, errorHandler);
+		var async = new AsyncSpec(this);
+		async.beforeEach(function (done) {
+			service.query().then(function(data){
+				items=data;
+				done();
+			});
 		});
 
-		it('returns an empty array of Resources immediately', function () {
-			expect(items).toBeDefined();
-			expect(items.length).toEqual(0);
-		});
+		// it('returns an empty array of Resources immediately', function () {
+		// 	runs(function(){
+		// 		expect(items).toBeDefined();
+		// 		expect(items.length).toEqual(0);
+		// 	})
+		// });
 
 		it('has $promise', function () {
+			console.log(items);
 			expect(items.$promise).toBeDefined();
 		});
 

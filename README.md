@@ -41,50 +41,65 @@ newItem.data = 'abc';
 newItem.$save(); // POST /item (if the item does not have an id)
 ```
 
+###Creating a reusable factory
+
+```
+AppName.factory('Item',['sailsResource',function(sailsResoure){
+    return sailsResource('item');
+}]);
+```
+
+```
+appName.controler('MyCtrl',['Item',function(Item){
+    var newItem = new Item();
+    newItem.data = 'abc';
+    newItem.$save();
+});
+```
+
 ###Get a listing of model instances
 ```js
-var items = sailsResource('item').query(); // GET /item
+$scope.items = [];
+// GET /item
+Item.query().then(function(items){
+    $scope.items = items;
+});
 ```
 
 ###Get a single model instance
 ```js
-var item = sailsResource('item').get({ id: 53 }); // GET /item/53
+$scope.item={};
+// GET /item/53
+Item.get({ id: 53 }).then(function(item){
+    $scope.item = item;
+});
 ```
 
 ###Update a model instance
 ```js
-var item = sailsResource('item').get({ id: 53 });
-item.data = 'def';
-item.$save(); // PUT /item/53 (if the item has an id)
-```
+Item.get({ id: 53 }).then(function(item){
+    item.data = 'def';
+    // PUT /item/53 (if the item has an id)
+    item.$save().then(function(item){
+        console.log('saved', item);
+    }).catch(function(err){
+        console.log('error',err);
+    });
+});
 
+
+```
 ###Delete a model instance
 ```js
-var item = sailsResource('item').get({ id: 53 });
-item.$delete(); // DELETE /item/53
-```
+Item.get({ id: 53 }).then(function(item){
+    // DELETE /item/53
+    item.$delete().then(function(item){
+        console.log('deleted', item);
+    }).catch(function(err){
+        console.log('error',err);
+    });
+});
 
-###Success and error callbacks
-Works like ngResource - can optionally provide callbacks
-```js
-var item = sailsResource('item').get({ id: 'notreal' }, 
-  function(response) { // first function is success handler
-    // Handle success
-  },
-  function(response) { // second function is error handler
-    // Handle error
-  });
-```
-
-Callbacks also available for actions without parameters.
-```js
-item.$save(
-	function(item) {
-		// Handle success
-	},
-	function(error) {
-		// Handle error
-	});
 ```
 
 ###Customize actions
